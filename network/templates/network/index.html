@@ -1,5 +1,16 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <div id="home-view">
+        {% if user.is_authenticated %}
+        <div id="new-post-form">
+            <form enctype= multipart/form-data method="post">
+                {% csrf_token %}
+                {{new_post_form}}
+                <input type="submit" value="Post">
+            </form> 
+        </div>
+        {% endif %}
+
+    </div>
 {% endblock %}
