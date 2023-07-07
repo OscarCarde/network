@@ -1,11 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    let new_post_form = document.querySelector('#new-post-form');
-    document.querySelector("#all-posts-button").addEventListener('click', () => {
-        if(!!new_post_form){
-            event.preventDefault();
-            new_post_form.style.display = 'block';  
-        }
-    });
-    new_post_form.style.display = 'none';  
+
+    let home_view = document.querySelector('#home-view');
+    document.querySelectorAll(".shows-newpost-form").forEach(page => {
+        page.addEventListener('click', () => {
+            home_view.style.display = 'block';
+        })
+    })
 })
+
+//TODO: Hide new post form when on Following and Profile
