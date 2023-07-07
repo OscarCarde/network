@@ -1,15 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.generic import TemplateView
 from .forms import *
 
 from .models import User
 
+class Index(TemplateView):
+    template_name = "network/index.html"
+    extra_context = {"new_post_form": NewPostForm()}
 
-def index(request):
-    if request.method == 'POST':
+    def post(self, request):
         form = NewPostForm(request.POST, request.FILES)
         if form.is_valid():
             new_post = form.save(commit=False)
@@ -17,11 +20,9 @@ def index(request):
             new_post.save()
             
         else:
-            return render(request, "network/register.html")
+            return HttpResponseRedirect("/register/")
         
-    return render(request, "network/index.html", {
-        "new_post_form": NewPostForm()
-    })
+   
 
 
 def login_view(request):
