@@ -1,12 +1,77 @@
+const number_of_posts = 10;
+let offset = 0
+
 document.addEventListener('DOMContentLoaded', () => {
     
 
-    let home_view = document.querySelector('#home-view');
-    document.querySelectorAll(".shows-newpost-form").forEach(page => {
-        page.addEventListener('click', () => {
-            home_view.style.display = 'block';
-        })
-    })
+    let newpost_form = document.querySelector('#newpost-form');
+    newpost_form.style.display = 'block';
+    document.querySelector('#profile-button').addEventListener('click', () => loadPage('#profile'));
+    document.querySelector('#allposts-button').addEventListener('click', () => loadPage('#allposts'));
+    document.querySelector('#following-button').addEventListener('click', () => loadPage('#following'));
+
+    window.onscroll = () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            loadPosts();
+        }
+    };
 })
 
-//TODO: Hide new post form when on Following and Profile
+//TODO: loadPage
+function loadPage(page) {
+    //hide all the view divs except the element for the corresponding parameter
+    document.querySelector('#home').style.display = 'none';
+    document.querySelector('#profile').style.display = 'none';
+    document.querySelector('#allposts').style.display = 'none';
+    document.querySelector('#following').style.display = 'none';
+
+    document.querySelector(`${page}`).style.display = 'block';
+
+
+    if(page === "#home") {
+        document.querySelector('#newpost-form').style.display = 'block';
+        loadPosts();
+    }
+    else if(page === "#allposts") {
+        document.querySelector('#newpost-form').style.display = 'block';
+        loadPosts();
+    }
+    else {
+        document.querySelector('#newpost-form').style.display = 'none';
+    }
+}
+
+function loadPosts() {
+
+    //load posts from /posts/ api
+    fetch(`/posts?num_posts=${number_of_posts}&offset=${offset}`)
+    .then(response => response.json())
+    .then(data => {
+        data.posts.forEach(add_post)
+    })
+
+    offset += number_of_posts;
+}
+
+function add_post(contents) {
+     //create post elements
+    let post = document.createElement('div');
+    let text = document.createElement('p');
+    let media = document.createElement('img');
+    let timestamp = document.createElement('p');
+
+    //populate post
+    text.innerHTML = contents.content;
+    media.src = contents.media;
+    media.className = "post-media"
+    timestamp = contents.timestamp;
+
+    post.className = 'post';
+    if(contents.media) {
+        post.append(media);
+    }
+    post.append(text);
+    post.append(timestamp);
+
+    document.querySelector('#allposts').append(post);
+}

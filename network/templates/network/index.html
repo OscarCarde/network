@@ -1,16 +1,26 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    <div id="home-view">
-        {% if user.is_authenticated %}
-        <div id="new-post-form">
+    {% if user.is_authenticated %}
+        <div id="newpost-form">
             <form enctype= multipart/form-data method="post">
                 {% csrf_token %}
                 {{new_post_form}}
                 <input type="submit" value="Post">
             </form> 
         </div>
-        {% endif %}
+    {% endif %}
 
+    <div id="home">    
     </div>
+
+    <div id="profile">
+    </div>
+
+    <div id="allposts">
+    </div>
+
+    <div id="following">
+    </div>
+
 {% endblock %}
