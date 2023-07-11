@@ -1,4 +1,4 @@
-const number_of_posts = 10;
+const number_of_posts = 2;
 let offset = 0
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loadPosts();
         }
     };
+
+    loadPosts();
 })
 
 //TODO: loadPage
