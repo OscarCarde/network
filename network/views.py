@@ -48,7 +48,7 @@ def posts(request):
     offset = int(request.GET.get("offset") or 0)
 
     #get posts from database from given index to 10th index
-    posts = Post.objects.order_by("timestamp")[offset:offset+number_of_posts]
+    posts = Post.objects.order_by("-timestamp")[offset:offset+number_of_posts]
     #format the posts
     serializer = PostSerializer(posts, many=True)
     #return JSONResponse

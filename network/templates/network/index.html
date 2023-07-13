@@ -11,6 +11,7 @@
         </div>
     {% endif %}
 
+    
     <div id="profile">
     {%if user.is_authenticated%}
         <div id="profile-banner">
@@ -26,20 +27,23 @@
             <p>{{profile.about}}</p>
         </div>
 
-        {% for post in  user.posts.all%}
-            <div>
+        <ul class="posts">
+        {% for post in  user.ordered_posts.all%}
+            <li class="post">
+                <h4>{{user.username}}</h4>
             {% if post.media %}
                 <img class= "post-media" src={{post.media.url}}></img>
             {% endif %}
-            <p>{{post.content}}</p>
-            <p>{{post.timestamp}}</p>
-            </div>
+                <p>{{post.content}}</p>
+                <p>{{post.timestamp}}</p>
+            </li>
         {% endfor %}
+        </ul>
     {%endif%}
     </div>
 
-    <div id="allposts">
-    </div>
+    <ul class="posts" id="allposts">
+    </ul>
 
     <div id="following">
     </div>

@@ -18,6 +18,10 @@ class Profile(models.Model):
     def number_followed(self):
         return self.following.count()
     
+    @property
+    def ordered_posts(self):
+        return self.posts.order_by("-timestamp")
+    
     def __str__(self):
         return f"{self.user.username}'s profile"
 

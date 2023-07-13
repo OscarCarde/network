@@ -26,7 +26,7 @@ function loadPage(page) {
     document.querySelector('#allposts').style.display = 'none';
     document.querySelector('#following').style.display = 'none';
 
-    document.querySelector(`${page}`).style.display = 'block';
+    document.querySelector(`${page}`).style.display = 'grid';
 
 
     if(page === "#allposts") {
@@ -54,18 +54,21 @@ function loadPosts() {
 
 function add_post(contents) {
      //create post elements
-    let post = document.createElement('div');
+    let post = document.createElement('li');
+    let poster = document.createElement('h4');
     let text = document.createElement('p');
     let media = document.createElement('img');
     let timestamp = document.createElement('p');
 
     //populate post
+    poster.innerHTML = contents.by;
     text.innerHTML = contents.content;
     media.src = contents.media;
     media.className = "post-media"
     timestamp = contents.timestamp;
 
     post.className = 'post';
+    post.append(poster);
     if(contents.media) {
         post.append(media);
     }
