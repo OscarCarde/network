@@ -20,7 +20,7 @@ class Profile(models.Model):
     
     @property
     def ordered_posts(self):
-        return self.posts.order_by("-timestamp")
+        return self.user.posts.order_by("-timestamp")
     
     def __str__(self):
         return f"{self.user.username}'s profile"
