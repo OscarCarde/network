@@ -46,3 +46,8 @@
     padding: 10px;
     margin: 10px;
 }
+
+#profile-banner button {
+    grid-template-columns: 4 / span 1;
+    height: min-content;
+}
