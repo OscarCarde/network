@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let newpost_form = document.querySelector('#newpost-form');
     newpost_form.style.display = 'block';
     document.querySelector('#profile-button').addEventListener('click', () => loadPage('#profile'));
-    document.querySelector('#allposts-button').addEventListener('click', () => loadPage('#allposts'));
+    //document.querySelector('#allposts-button').addEventListener('click', () => loadPage('#allposts'));
     document.querySelector('#following-button').addEventListener('click', () => loadPage('#following'));
 
     window.onscroll = () => {
@@ -16,13 +16,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    loadPosts();
+    loadPage('#allposts');
 })
 
 //TODO: loadPage
 function loadPage(page) {
     //hide all the view divs except the element for the corresponding parameter
-    document.querySelector('#home').style.display = 'none';
     document.querySelector('#profile').style.display = 'none';
     document.querySelector('#allposts').style.display = 'none';
     document.querySelector('#following').style.display = 'none';
@@ -30,17 +29,15 @@ function loadPage(page) {
     document.querySelector(`${page}`).style.display = 'block';
 
 
-    if(page === "#home") {
-        document.querySelector('#newpost-form').style.display = 'block';
-        loadPosts();
-    }
-    else if(page === "#allposts") {
+    if(page === "#allposts") {
         document.querySelector('#newpost-form').style.display = 'block';
         loadPosts();
     }
     else {
         document.querySelector('#newpost-form').style.display = 'none';
     }
+
+
 }
 
 function loadPosts() {

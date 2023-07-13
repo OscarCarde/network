@@ -11,10 +11,21 @@
         </div>
     {% endif %}
 
-    <div id="home">    
-    </div>
-
     <div id="profile">
+    {%if user.is_authenticated%}
+        <div id="profile-banner">
+            <img src="{{profile.profile_picture.url}}" alt="">
+            <h3>{{user.username}}</h3>
+            <div>
+                <p>Following {{profile.number_followed}}</p>
+                <p>Followers {{profile.number_of_followers}}</p>
+            </div>
+            
+        </div>
+        <div id="profile-about">
+            <p>{{profile.about}}</p>
+        </div>
+    {%endif%}
     </div>
 
     <div id="allposts">
