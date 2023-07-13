@@ -1,6 +1,7 @@
 .post-media {
     height: 500px;
     width: 500px;
+    object-fit: cover;
 }
 
 #profile-banner {

@@ -25,6 +25,16 @@
         <div id="profile-about">
             <p>{{profile.about}}</p>
         </div>
+
+        {% for post in  user.posts.all%}
+            <div>
+            {% if post.media %}
+                <img class= "post-media" src={{post.media.url}}></img>
+            {% endif %}
+            <p>{{post.content}}</p>
+            <p>{{post.timestamp}}</p>
+            </div>
+        {% endfor %}
     {%endif%}
     </div>
 
