@@ -1,3 +1,11 @@
+#newpost-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+#newpost-form form {
+    grid-column: 2 / span 1;
+}
 .posts {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -5,6 +13,7 @@
 
 .post {
     grid-column: 2 / span 1;
+    margin: 10px;
 }
 
 .post-media {

@@ -64,10 +64,10 @@ function add_post(contents) {
     poster.innerHTML = contents.by;
     text.innerHTML = contents.content;
     media.src = contents.media;
-    media.className = "post-media"
+    media.className = "post-media"  
     timestamp = contents.timestamp;
 
-    post.className = 'post';
+    post.className = 'post list-group-item';
     post.append(poster);
     if(contents.media) {
         post.append(media);

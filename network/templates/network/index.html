@@ -3,10 +3,10 @@
 {% block body %}
     {% if user.is_authenticated %}
         <div id="newpost-form">
-            <form enctype= multipart/form-data method="post">
+            <form class="form-group" enctype= multipart/form-data method="post">
                 {% csrf_token %}
                 {{new_post_form}}
-                <input type="submit" value="Post">
+                <input class="btn btn-primary" type="submit" value="Post">
             </form> 
         </div>
     {% endif %}
@@ -27,9 +27,9 @@
             <p>{{profile.about}}</p>
         </div>
 
-        <ul class="posts">
+        <ul class="posts list-group">
         {% for post in  profile.ordered_posts%}
-            <li class="post">
+            <li class="post list-group-item">
                 <h4>{{user.username}}</h4>
             {% if post.media %}
                 <img class= "post-media" src={{post.media.url}}></img>
@@ -42,7 +42,7 @@
     {%endif%}
     </div>
 
-    <ul class="posts" id="allposts">
+    <ul class="posts list-group" id="allposts">
     </ul>
 
     <div id="following">

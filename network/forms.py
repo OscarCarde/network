@@ -6,3 +6,13 @@ class NewPostForm(forms.ModelForm):
         model = Post
         fields = ['content', 'media']
         exclude = ['by']
+        labels = {
+            'content': "",
+            'media': ""
+        }
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Today I ...'}),
+            'media': forms.FileInput(attrs={'class': 'form-control'}, )
+        }
+
+        
