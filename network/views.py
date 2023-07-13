@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
@@ -14,15 +15,25 @@ class Index(TemplateView):
     template_name = "network/index.html"
     extra_context = {"new_post_form": NewPostForm()}
 
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        #add the profile of the logged-in user to the context
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            profile = self.request.user.profile
+            context["profile"] = profile
+        return context
+
     def post(self, request):
-        form = NewPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            new_post = form.save(commit=False)
+        new_post_form = NewPostForm(request.POST, request.FILES)
+        if new_post_form.is_valid():
+            new_post = new_post_form.save(commit=False)
             new_post.by = request.user
             new_post.save()
             
         else:
             return HttpResponseRedirect("/register/")
+        
         
    
 
@@ -87,6 +98,9 @@ def register(request):
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
+            #create the corresponding profile
+            profile = Profile.objects.create(user=user)
+            profile.save()
         except IntegrityError:
             return render(request, "network/register.html", {
                 "message": "Username already taken."
