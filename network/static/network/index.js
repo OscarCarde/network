@@ -83,5 +83,10 @@ function add_post(contents) {
 }
 
 function loadProfile(username) {
-    
+    fetch(`/profile?username=${username}`)
+    .then(response => response.json())
+    .then(data => {
+        //TODO
+        console.log(data);
+    })
 }

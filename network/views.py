@@ -38,15 +38,14 @@ class Index(TemplateView):
    
 
 def posts(request):
-
     ''' posts API,
     get posts from database and load them in json
     '''
-    #TODO:
-    #get number of posts and start indice to get posts from
+
+    #get number of posts and start index to get posts from
     number_of_posts = int(request.GET.get("num_posts") or 10)
     offset = int(request.GET.get("offset") or 0)
-
+    
     #get posts from database from given index to 10th index
     posts = Post.objects.order_by("-timestamp")[offset:offset+number_of_posts]
     #format the posts
@@ -54,6 +53,9 @@ def posts(request):
     #return JSONResponse
     return JsonResponse({"posts": serializer.data})
     
+def profile(request):
+    #TODO
+    pass
 
 
 def login_view(request):
