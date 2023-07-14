@@ -11,11 +11,11 @@ class PostSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     ordered_posts = serializers.SerializerMethodField()
-    number_of_followers = serializers.SerializeMethodField()
-    number_followed = serializers.SerializeMethodField()
+    number_of_followers = serializers.SerializerMethodField()
+    number_followed = serializers.SerializerMethodField()
 
     def get_ordered_posts(self, obj):
-        instances = obj.odered_posts
+        instances = obj.ordered_posts
         post_serializer = PostSerializer(instances, many=True)
         return post_serializer.data
     
@@ -26,5 +26,5 @@ class ProfileSerializer(serializers.ModelSerializer):
         return obj.number_followed 
 
     class Meta:
-        model: Profile
-        fields = ['username', 'ordered_posts', 'number_of_followers', 'number_followed']
+        model =  Profile
+        fields = ['username', 'about', 'profile_picture', 'ordered_posts', 'number_of_followers', 'number_followed']

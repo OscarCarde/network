@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from .forms import *
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, ProfileSerializer
 
 from .models import User
 
@@ -54,8 +54,16 @@ def posts(request):
     return JsonResponse({"posts": serializer.data})
     
 def profile(request):
-    #TODO
-    pass
+    ''' profile api,
+    get information and posts about a user
+    '''
+    username = request.GET.get("username")
+
+    profile = Profile.objects.get(user = User.objects.get(username=username))
+
+    serializer = ProfileSerializer(profile)
+
+    return JsonResponse({'profile': serializer.data})
 
 
 def login_view(request):
