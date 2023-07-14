@@ -30,7 +30,7 @@
         <ul class="posts list-group">
         {% for post in  profile.ordered_posts%}
             <li class="post list-group-item">
-                <h4>{{user.username}}</h4>
+                <h4 class="username">{{user.username}}</h4>
             {% if post.media %}
                 <img class= "post-media" src={{post.media.url}}></img>
             {% endif %}

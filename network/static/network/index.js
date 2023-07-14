@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loadPage('#allposts');
+    document.querySelectorAll(".username").forEach(username =>{
+        username.addEventListener('click', () => loadProfile(username.innerHTML))
+    })
 })
 
 //TODO: loadPage
@@ -62,6 +65,7 @@ function add_post(contents) {
 
     //populate post
     poster.innerHTML = contents.by;
+    poster.className="username"
     text.innerHTML = contents.content;
     media.src = contents.media;
     media.className = "post-media"  
@@ -76,4 +80,8 @@ function add_post(contents) {
     post.append(timestamp);
 
     document.querySelector('#allposts').append(post);
+}
+
+function loadProfile(username) {
+    
 }
