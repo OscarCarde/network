@@ -79,7 +79,7 @@ function add_post(contents) {
     text.innerHTML = contents.content;
     media.src = contents.media;
     media.className = "post-media"  
-    timestamp = contents.timestamp;
+    timestamp = contents.posted_since;
 
     post.className = 'post list-group-item';
     post.append(poster);

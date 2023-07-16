@@ -3,10 +3,14 @@ from .models import Post, Profile
 
 class PostSerializer(serializers.ModelSerializer):
     by = serializers.CharField(source='by.username', read_only=True)
+    posted_since = serializers.SerializerMethodField()
 
+    def get_posted_since(self, obj):
+        return obj.posted_since
+    
     class Meta:
         model = Post
-        fields = ['by', 'content', 'media', 'timestamp']
+        fields = ['by', 'content', 'media', 'posted_since']
 
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
