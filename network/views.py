@@ -37,8 +37,9 @@ class Index(TemplateView):
         
         
    
+#____________APIs_________________________
 
-def posts(request):
+def get_posts(request):
     ''' posts API,
     get posts from database and load them in json
     '''
@@ -71,6 +72,24 @@ def profile(request):
 
     return JsonResponse(json_response)
 
+def like(request, post):
+    pass
+
+
+def follow(request, username):
+    profile = Profile.objects.get(user=request.user)
+    user_to_follow = User.objects.get(username=username)
+
+    if user_to_follow:
+        if user_to_follow in profile.following.all():
+            profile.following.remove(user_to_follow)
+            return JsonResponse({"followed":False})
+        else:
+            profile.following.add(user_to_follow)
+            return JsonResponse({"followed": True})
+    else:
+        return JsonResponse({"followed": None})
+#_________________________________________________________
 
 def login_view(request):
     if request.method == "POST":

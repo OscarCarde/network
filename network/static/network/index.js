@@ -97,15 +97,15 @@ function loadProfile(username) {
     .then(response => response.json())
     .then(data => {
         
-        media = document.createElement('img');
+        let media = document.createElement('img');
         media.src = data.profile.profile_picture;
 
 
-        user_name = document.createElement('h3');
+        let user_name = document.createElement('h3');
         user_name.innerHTML = data.profile.username;
 
         
-        follow = document.querySelector("#follow");
+        let follow = document.querySelector("#follow");
         if(data.profile.is_following) {
             follow.innerHTML = "Unfollow";
         } else {
@@ -118,15 +118,15 @@ function loadProfile(username) {
             follow.style.display = "block";
         }
 
-        following = document.createElement('p');
+        let following = document.createElement('p');
         following.innerHTML = "Following: " + data.profile.number_followed;
         following.id = "following";
 
-        followers = document.createElement('p');
-        followers.innerHTML = "Followers: " + data.profile.number_followed;
+        let followers = document.createElement('p');
+        followers.innerHTML = "Followers: " + data.profile.number_of_followers;
         followers.id = "followers";
 
-        about = document.createElement('p');
+        let about = document.createElement('p');
         about.innerHTML = data.profile.about;
         about.id = "profile-status";
 
@@ -135,8 +135,28 @@ function loadProfile(username) {
 
         document.querySelector('#profile-posts').replaceChildren();
         data.profile.ordered_posts.forEach(post => {
-            post_element = add_post(post);
+            let post_element = add_post(post);
             document.querySelector('#profile-posts').append(post_element);
         });
+    })
+
+    let follow = document.querySelector("#follow");
+    follow.addEventListener('click', element => {
+
+        if (follow.innerHTML === "Follow") {
+            follow.innerHTML = "Unfollow";
+        } else if (follow.innerHTML === "Unfollow") {
+            follow.innerHTML = "Follow";
+        }
+        
+        fetch(`follow/${username}`)
+        .then(response => response.json())
+        .then(status => {
+            if(status.followed) {
+                element.innerHTML = "Unfollow";
+            } else if (!status.followed) {
+                element.innerHTML = "Follow"
+            }
+        })
     })
 }
