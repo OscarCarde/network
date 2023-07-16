@@ -26,7 +26,7 @@ class Profile(models.Model):
         return f"{self.user.username}'s profile"
 
 class Post(models.Model):
-    content = models.CharField(max_length = 1000)
+    content = models.CharField(max_length = 10000)
     media = models.ImageField(upload_to='media/post_media', blank=True)
 
     by = models.ForeignKey("User", on_delete=models.CASCADE, related_name="posts")

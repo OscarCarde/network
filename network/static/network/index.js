@@ -17,8 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loadPage('#allposts');
-    document.querySelectorAll(".username").forEach(username =>{
-        username.addEventListener('click', () => loadProfile(username.innerHTML))
+    document.querySelectorAll(".username").forEach(element =>{
+        element.addEventListener('click', () =>{ 
+            loadPage('#profile');
+            loadProfile(element.innerHTML);
+        })
     })
 })
 
@@ -49,7 +52,10 @@ function loadPosts() {
     fetch(`/posts?num_posts=${number_of_posts}&offset=${offset}`)
     .then(response => response.json())
     .then(data => {
-        data.posts.forEach(add_post)
+        data.posts.forEach(post => {
+            post_element = add_post(post);
+            document.querySelector('#allposts').append(post_element);
+        })
     })
 
     offset += number_of_posts;
@@ -65,7 +71,11 @@ function add_post(contents) {
 
     //populate post
     poster.innerHTML = contents.by;
-    poster.className="username"
+    poster.className = "clickable";
+    poster.addEventListener('click', () =>{ 
+        loadPage('#profile');
+        loadProfile(poster.innerHTML);
+    })
     text.innerHTML = contents.content;
     media.src = contents.media;
     media.className = "post-media"  
@@ -79,14 +89,54 @@ function add_post(contents) {
     post.append(text);
     post.append(timestamp);
 
-    document.querySelector('#allposts').append(post);
+    return post;
 }
 
 function loadProfile(username) {
     fetch(`/profile?username=${username}`)
     .then(response => response.json())
     .then(data => {
-        //TODO
-        console.log(data);
+        
+        media = document.createElement('img');
+        media.src = data.profile.profile_picture;
+
+
+        user_name = document.createElement('h3');
+        user_name.innerHTML = data.profile.username;
+
+        
+        follow = document.querySelector("#follow");
+        if(data.profile.is_following) {
+            follow.innerHTML = "Unfollow";
+        } else {
+            follow.innerHTML = "Follow";
+        }
+
+        if(loggedin_user === user_name.innerHTML) {
+            follow.style.display = "none";
+        } else {
+            follow.style.display = "block";
+        }
+
+        following = document.createElement('p');
+        following.innerHTML = "Following: " + data.profile.number_followed;
+        following.id = "following";
+
+        followers = document.createElement('p');
+        followers.innerHTML = "Followers: " + data.profile.number_followed;
+        followers.id = "followers";
+
+        about = document.createElement('p');
+        about.innerHTML = data.profile.about;
+        about.id = "profile-status";
+
+        document.querySelector("#profile-picture").replaceChildren(media);
+        document.querySelector("#profile-info").replaceChildren(user_name, following, followers, about);
+
+        document.querySelector('#profile-posts').replaceChildren();
+        data.profile.ordered_posts.forEach(post => {
+            post_element = add_post(post);
+            document.querySelector('#profile-posts').append(post_element);
+        });
     })
 }

@@ -13,33 +13,14 @@
 
     
     <div id="profile">
-    {%if user.is_authenticated%}
         <div id="profile-banner">
-            <img src="{{profile.profile_picture.url}}" alt="">
-            <h3>{{user.username}}</h3>
-            <div>
-                <p>Following {{profile.number_followed}}</p>
-                <p>Followers {{profile.number_of_followers}}</p>
-            </div>
-            <button class="btn btn-light">Follow</button>
-        </div>
-        <div id="profile-about">
-            <p>{{profile.about}}</p>
+            <button id="follow" "btn btn-light"></button>
+            <div id="profile-picture"></div>
+            <div id="profile-info"></div>
         </div>
 
-        <ul class="posts list-group">
-        {% for post in  profile.ordered_posts%}
-            <li class="post list-group-item">
-                <h4 class="username">{{user.username}}</h4>
-            {% if post.media %}
-                <img class= "post-media" src={{post.media.url}}></img>
-            {% endif %}
-                <p>{{post.content}}</p>
-                <p>{{post.timestamp}}</p>
-            </li>
-        {% endfor %}
+        <ul id="profile-posts" class="posts list-group">
         </ul>
-    {%endif%}
     </div>
 
     <ul class="posts list-group" id="allposts">

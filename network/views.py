@@ -30,6 +30,7 @@ class Index(TemplateView):
             new_post = new_post_form.save(commit=False)
             new_post.by = request.user
             new_post.save()
+            return HttpResponseRedirect("/")
             
         else:
             return HttpResponseRedirect("/register/")
@@ -63,7 +64,12 @@ def profile(request):
 
     serializer = ProfileSerializer(profile)
 
-    return JsonResponse({'profile': serializer.data})
+    json_response = {'profile': serializer.data}
+
+    is_followed = profile.user in request.user.profile.following.all()
+    json_response["profile"]["is_following"] = is_followed
+
+    return JsonResponse(json_response)
 
 
 def login_view(request):

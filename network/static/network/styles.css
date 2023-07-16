@@ -24,30 +24,40 @@
 
 #profile-banner {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-
-#profile-banner img{
-    grid-template-columns: 1 / span 1;
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-}
-
-#profile-banner h3{
-    grid-template-columns: 2 / span 1;
-}
-
-#profile-banner div {
-    grid-template-columns: 3 / span 1
-}
-
-#profile-banner *{
-    padding: 10px;
+    width: 50vw;
     margin: 10px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 4fr 1fr;
 }
 
-#profile-banner button {
-    grid-template-columns: 4 / span 1;
-    height: min-content;
+    #profile-picture {
+        grid-area: 2 / 1 / span 1 / span 2;
+    }
+
+        #profile-picture img{
+            max-width: 100%;
+            object-fit: cover;
+        }
+
+    #profile-banner button{
+        grid-area: 1 / 1 / span 1 / span 1;
+        height: min-content;
+    }
+
+    #profile-info {
+        grid-area: 2 / 3 / span 1 / span 2;
+    }
+
+
+    #followers, #following {
+        grid-area: 3 / 1 / span 1 / span 2;
+    }
+
+    #profile-banner *{
+        padding: 10px;
+        margin: 10px;
+    }
+
+.clickable {
+    cursor: pointer;
 }
