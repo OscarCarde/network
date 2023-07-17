@@ -39,7 +39,7 @@ class Index(TemplateView):
    
 #____________APIs_________________________
 
-def get_posts(request):
+def get_allposts(request):
     ''' posts API,
     get posts from database and load them in json
     '''
@@ -52,7 +52,20 @@ def get_posts(request):
     posts = Post.objects.order_by("-timestamp")[offset:offset+number_of_posts]
     #format the posts
     serializer = PostSerializer(posts, many=True)
+
+    for post in serializer.data:
+        post_instance = Post.objects.get(id=post["id"])
+        post["liked"] = request.user in post_instance.likes.all()
     #return JSONResponse
+    return JsonResponse({"posts": serializer.data})
+
+def get_followed_posts(request):
+    posts = request.user.profile.followed_posts
+    serializer = PostSerializer(posts, many=True)
+    for post in serializer.data:
+        post_instance = Post.objects.get(id=post["id"])
+        post["liked"] = request.user in post_instance.likes.all()
+        #return JSONResponse
     return JsonResponse({"posts": serializer.data})
     
 def profile(request):
@@ -74,7 +87,11 @@ def profile(request):
 
 def like(request, id):
     post = Post.objects.get(id=id)
-    post.likes.add(request.user)
+    if request.user not in post.likes.all():
+        post.likes.add(request.user)
+    else:
+        post.likes.remove(request.user)
+
     return JsonResponse(dict())
 
 

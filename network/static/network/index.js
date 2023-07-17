@@ -6,8 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let newpost_form = document.querySelector('#newpost-form');
     newpost_form.style.display = 'block';
-    document.querySelector('#profile-button').addEventListener('click', () => loadPage('#profile'));
-    //document.querySelector('#allposts-button').addEventListener('click', () => loadPage('#allposts'));
+    document.querySelector('#profile-button').addEventListener('click', element => {
+        loadPage('#profile');
+        username = document.querySelector(".username").innerHTML;
+        loadProfile(username);
+    });
     document.querySelector('#following-button').addEventListener('click', () => loadPage('#following'));
 
     window.onscroll = () => {
@@ -17,12 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     loadPage('#allposts');
-    document.querySelectorAll(".username").forEach(element =>{
-        element.addEventListener('click', () =>{ 
-            loadPage('#profile');
-            loadProfile(element.innerHTML);
-        })
-    })
 })
 
 //TODO: loadPage
@@ -43,7 +40,16 @@ function loadPage(page) {
         document.querySelector('#newpost-form').style.display = 'none';
     }
 
-
+    if(page === "#following") {
+        fetch("/following")
+        .then(response => response.json())
+        .then(data => {
+            data.posts.forEach(post => {
+                post_element = add_post(post);
+                document.querySelector('#following').append(post_element);
+            })
+        })
+    }
 }
 
 function loadPosts() {
@@ -60,6 +66,8 @@ function loadPosts() {
 
     offset += number_of_posts;
 }
+
+//function
 
 function add_post(contents) {
      //create post elements
@@ -86,11 +94,17 @@ function add_post(contents) {
     like.innerHTML = "Like";
 
     like.onclick = () => {
+        if(!contents.liked) {
+            likes.innerHTML = "Liked " + (contents.likes + 1);
+        } else {
+            likes.innerHTML = "Liked " + (contents.likes -1);
+        }
         fetch(`like/${contents.id}`)
         .then(response => response.json())
         .then(data => {
             console.log(data);
         })
+
     }
 
     post.className = 'post list-group-item';

@@ -23,6 +23,15 @@ class Profile(models.Model):
     def ordered_posts(self):
         return self.user.posts.order_by("-timestamp")
     
+    @property
+    def followed_posts(self):
+        posts = Post.objects.none()
+        for user in self.following.all():
+            user_posts = user.posts.all()
+            posts = posts | user_posts
+        
+        return posts.order_by("-timestamp")
+    
     def __str__(self):
         return f"{self.user.username}'s profile"
 
