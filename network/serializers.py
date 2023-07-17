@@ -4,13 +4,17 @@ from .models import Post, Profile
 class PostSerializer(serializers.ModelSerializer):
     by = serializers.CharField(source='by.username', read_only=True)
     posted_since = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
 
     def get_posted_since(self, obj):
         return obj.posted_since
     
+    def get_likes(self, obj):
+        return obj.number_of_likes
+    
     class Meta:
         model = Post
-        fields = ['by', 'content', 'media', 'posted_since']
+        fields = ['id', 'by', 'content', 'media', 'likes', 'posted_since']
 
 class ProfileSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)

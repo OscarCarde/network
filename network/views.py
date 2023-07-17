@@ -72,8 +72,11 @@ def profile(request):
 
     return JsonResponse(json_response)
 
-def like(request, post):
-    pass
+def like(request, id):
+    post = Post.objects.get(id=id)
+    post.likes.add(request.user)
+    return JsonResponse(dict())
+
 
 
 def follow(request, username):

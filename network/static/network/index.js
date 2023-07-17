@@ -68,6 +68,8 @@ function add_post(contents) {
     let text = document.createElement('p');
     let media = document.createElement('img');
     let timestamp = document.createElement('p');
+    let likes = document.createElement('p');
+    let like = document.createElement('button');
 
     //populate post
     poster.innerHTML = contents.by;
@@ -80,14 +82,23 @@ function add_post(contents) {
     media.src = contents.media;
     media.className = "post-media"  
     timestamp = contents.posted_since;
+    likes.innerHTML = "Liked " + contents.likes
+    like.innerHTML = "Like";
+
+    like.onclick = () => {
+        fetch(`like/${contents.id}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        })
+    }
 
     post.className = 'post list-group-item';
     post.append(poster);
     if(contents.media) {
         post.append(media);
     }
-    post.append(text);
-    post.append(timestamp);
+    post.append(text, timestamp, likes, like);
 
     return post;
 }
