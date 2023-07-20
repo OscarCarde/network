@@ -25,23 +25,13 @@ function loadPage(page) {
     
     if(page === "allposts") {
         document.querySelector('#newpost-form').style.display = 'block';
-        loadAllPosts();
+        loadPosts("/posts");
 
     } else if(page === "profile") {
         document.querySelector('#profile').style.display = 'grid';
 
     } else if(page === "following") {
-
-        fetch(`/following?${page_number}`)
-        .then(response => response.json())
-        .then(data => {
-            page_number ++;
-            document.querySelector('#posts').replaceChildren();
-            data.posts.forEach(post => {
-                post_element = add_post(post);
-                document.querySelector('#posts').append(post_element);
-            })
-        })
+        loadPosts("/following");
     }
 }
 
@@ -113,7 +103,6 @@ function loadProfile(username) {
     fetch(`/profile?username=${username}&page=${page_number}`)
     .then(response => response.json())
     .then(data => {
-        page_number ++;
         let media = document.createElement('img');
         media.src = data.profile.profile_picture;
 
@@ -149,11 +138,6 @@ function loadProfile(username) {
 
         document.querySelector("#profile-picture").replaceChildren(media);
         document.querySelector("#profile-info").replaceChildren(user_name, following, followers, about);
-
-        data.posts.forEach(post => {
-            let post_element = add_post(post);
-            document.querySelector('#posts').append(post_element);
-        });
     })
 
     let follow = document.querySelector("#follow");
@@ -173,6 +157,20 @@ function loadProfile(username) {
             } else if (!status.followed) {
                 element.innerHTML = "Follow"
             }
+        })
+    })
+
+    loadPosts(`/posts/${username}`);
+}
+
+function loadPosts(api_route) {
+    fetch(`${api_route}?page=${page_number}`)
+    .then(response => response.json())
+    .then(data => {
+        page_number ++;
+        data.posts.forEach(post => {
+            post_element = add_post(post);
+            document.querySelector('#posts').append(post_element);
         })
     })
 }

@@ -39,7 +39,7 @@ class Index(TemplateView):
         
    
 #____________APIs_________________________
-
+#TODO: refactor apis 
 def get_allposts(request):
     ''' posts API,
     get posts from database and load them in json
@@ -78,6 +78,15 @@ def get_followed_posts(request):
         post["liked"] = request.user in post_instance.likes.all()
         #return JSONResponse
     return JsonResponse({"posts": serializer.data})
+
+def get_profile_posts(request, user):
+    page_number = int(request.GET.get("page") or 1)
+    posts = Post.objects.filter(by=User.objects.get(username=user))
+    pages = Paginator(posts, 10)
+    page = pages.page(page_number)
+    post_serializer = PostSerializer(page.object_list, many=True)
+    return JsonResponse({'posts': post_serializer.data})
+
     
 def profile(request):
     ''' profile api,
@@ -87,13 +96,7 @@ def profile(request):
     profile = Profile.objects.get(user = User.objects.get(username=username))
     profile_serializer = ProfileSerializer(profile)
 
-    page_number = int(request.GET.get("page") or 1)
-    posts = Post.objects.filter(by=profile.user)
-    pages = Paginator(posts, 10)
-    page = pages.page(page_number)
-    post_serializer = PostSerializer(page.object_list, many=True)
-
-    json_response = {'profile': profile_serializer.data, 'posts': post_serializer.data}
+    json_response = {'profile': profile_serializer.data}
 
     is_followed = profile.user in request.user.profile.following.all()
     json_response["profile"]["is_following"] = is_followed
