@@ -1,66 +1,65 @@
 const number_of_posts = 2;
 let offset = 0
+const infinite_scroll = function () {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        loadAllPosts();
+    }
+} 
 
 document.addEventListener('DOMContentLoaded', () => {
     
-
-    let newpost_form = document.querySelector('#newpost-form');
-    newpost_form.style.display = 'block';
-    document.querySelector('#profile-button').addEventListener('click', element => {
-        loadPage('#profile');
-        username = document.querySelector(".username").innerHTML;
-        loadProfile(username);
+    document.querySelector('#profile-button').addEventListener('click', () => {
+        loadPage('profile');
+        loadProfile(loggedin_user);
     });
-    document.querySelector('#following-button').addEventListener('click', () => loadPage('#following'));
+    document.querySelector('#following-button').addEventListener('click', () => loadPage('following'));
 
-    window.onscroll = () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-            loadPosts();
-        }
-    };
 
-    loadPage('#allposts');
+    loadPage('allposts');
 })
 
 //TODO: loadPage
 function loadPage(page) {
+
     //hide all the view divs except the element for the corresponding parameter
+    document.querySelector('#posts').replaceChildren();
+    document.querySelector('#newpost-form').style.display = 'none';
     document.querySelector('#profile').style.display = 'none';
-    document.querySelector('#allposts').style.display = 'none';
-    document.querySelector('#following').style.display = 'none';
 
-    document.querySelector(`${page}`).style.display = 'grid';
-
-
-    if(page === "#allposts") {
+    window.removeEventListener('scroll', infinite_scroll);
+    
+    if(page === "allposts") {
         document.querySelector('#newpost-form').style.display = 'block';
-        loadPosts();
-    }
-    else {
-        document.querySelector('#newpost-form').style.display = 'none';
-    }
+        loadAllPosts();
+        window.addEventListener('scroll', infinite_scroll);
+        
+    } else if(page === "profile") {
+        document.querySelector('#profile').style.display = 'grid';
 
-    if(page === "#following") {
+    } else if(page === "following") {
+
         fetch("/following")
         .then(response => response.json())
         .then(data => {
+            document.querySelector('#posts').replaceChildren();
             data.posts.forEach(post => {
                 post_element = add_post(post);
-                document.querySelector('#following').append(post_element);
+                document.querySelector('#posts').append(post_element);
             })
         })
     }
 }
 
-function loadPosts() {
+function loadAllPosts() {
 
     //load posts from /posts/ api
     fetch(`/posts?num_posts=${number_of_posts}&offset=${offset}`)
     .then(response => response.json())
     .then(data => {
+        
         data.posts.forEach(post => {
             post_element = add_post(post);
-            document.querySelector('#allposts').append(post_element);
+            document.querySelector('#posts').append(post_element);
         })
     })
 
@@ -83,7 +82,7 @@ function add_post(contents) {
     poster.innerHTML = contents.by;
     poster.className = "clickable";
     poster.addEventListener('click', () =>{ 
-        loadPage('#profile');
+        loadPage('profile');
         loadProfile(poster.innerHTML);
     })
     text.innerHTML = contents.content;
@@ -158,10 +157,9 @@ function loadProfile(username) {
         document.querySelector("#profile-picture").replaceChildren(media);
         document.querySelector("#profile-info").replaceChildren(user_name, following, followers, about);
 
-        document.querySelector('#profile-posts').replaceChildren();
         data.profile.ordered_posts.forEach(post => {
             let post_element = add_post(post);
-            document.querySelector('#profile-posts').append(post_element);
+            document.querySelector('#posts').append(post_element);
         });
     })
 
