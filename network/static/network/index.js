@@ -1,11 +1,5 @@
+let page_number = 1;
 //variables for posts infinite scroll
-const number_of_posts = 2;
-let offset = 0
-const infinite_scroll = function () {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        loadAllPosts();
-    }
-} 
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -27,21 +21,21 @@ function loadPage(page) {
     document.querySelector('#newpost-form').style.display = 'none';
     document.querySelector('#profile').style.display = 'none';
 
-    window.removeEventListener('scroll', infinite_scroll);
+    page_number = 1;
     
     if(page === "allposts") {
         document.querySelector('#newpost-form').style.display = 'block';
         loadAllPosts();
-        window.addEventListener('scroll', infinite_scroll);
-        
+
     } else if(page === "profile") {
         document.querySelector('#profile').style.display = 'grid';
 
     } else if(page === "following") {
 
-        fetch("/following")
+        fetch(`/following?${page_number}`)
         .then(response => response.json())
         .then(data => {
+            page_number ++;
             document.querySelector('#posts').replaceChildren();
             data.posts.forEach(post => {
                 post_element = add_post(post);
@@ -54,17 +48,15 @@ function loadPage(page) {
 function loadAllPosts() {
 
     //load posts from /posts/ api
-    fetch(`/posts?num_posts=${number_of_posts}&offset=${offset}`)
+    fetch(`/posts?${page_number}`)
     .then(response => response.json())
     .then(data => {
-        
+        page_number ++;
         data.posts.forEach(post => {
             post_element = add_post(post);
             document.querySelector('#posts').append(post_element);
         })
     })
-
-    offset += number_of_posts;
 }
 
 //function
@@ -118,10 +110,10 @@ function add_post(contents) {
 }
 
 function loadProfile(username) {
-    fetch(`/profile?username=${username}`)
+    fetch(`/profile?username=${username}&page=${page_number}`)
     .then(response => response.json())
     .then(data => {
-        
+        page_number ++;
         let media = document.createElement('img');
         media.src = data.profile.profile_picture;
 
@@ -158,7 +150,7 @@ function loadProfile(username) {
         document.querySelector("#profile-picture").replaceChildren(media);
         document.querySelector("#profile-info").replaceChildren(user_name, following, followers, about);
 
-        data.profile.ordered_posts.forEach(post => {
+        data.posts.forEach(post => {
             let post_element = add_post(post);
             document.querySelector('#posts').append(post_element);
         });
