@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 from .forms import *
 from .models import Post
 from .serializers import PostSerializer, ProfileSerializer
+from django.core.paginator import Paginator
 
 from .models import User
 
@@ -45,13 +46,19 @@ def get_allposts(request):
     '''
 
     #get number of posts and start index to get posts from
-    number_of_posts = int(request.GET.get("num_posts") or 10)
-    offset = int(request.GET.get("offset") or 0)
-    
-    #get posts from database from given index to 10th index
-    posts = Post.objects.order_by("-timestamp")[offset:offset+number_of_posts]
+    #number_of_posts = int(request.GET.get("num_posts") or 10)
+    #offset = int(request.GET.get("offset") or 0)
+    ''' change api call to /posts?page=${page_number}
+    '''
+    page_number = int(request.GET.get("page") or 1)
+
+    #get posts from database
+    posts = Post.objects.order_by("-timestamp")#[offset:offset+number_of_posts]
+    # implement paginator
+    pages = Paginator(posts, 10) 
+    page = pages.page(page_number)
     #format the posts
-    serializer = PostSerializer(posts, many=True)
+    serializer = PostSerializer(page.object_list, many=True)
 
     for post in serializer.data:
         post_instance = Post.objects.get(id=post["id"])
@@ -60,8 +67,12 @@ def get_allposts(request):
     return JsonResponse({"posts": serializer.data})
 
 def get_followed_posts(request):
+    page_number = int(request.GET.get("page") or 1)
     posts = request.user.profile.followed_posts
-    serializer = PostSerializer(posts, many=True)
+    # implement paginator
+    pages = Paginator(posts, 10) 
+    page = pages.page(page_number)
+    serializer = PostSerializer(page.object_list, many=True)
     for post in serializer.data:
         post_instance = Post.objects.get(id=post["id"])
         post["liked"] = request.user in post_instance.likes.all()
@@ -73,12 +84,16 @@ def profile(request):
     get information and posts about a user
     '''
     username = request.GET.get("username")
-
     profile = Profile.objects.get(user = User.objects.get(username=username))
+    profile_serializer = ProfileSerializer(profile)
 
-    serializer = ProfileSerializer(profile)
+    page_number = int(request.GET.get("page") or 1)
+    posts = Post.objects.filter(by=profile.user)
+    pages = Paginator(posts, 10)
+    page = pages.page(page_number)
+    post_serializer = PostSerializer(page.object_list, many=True)
 
-    json_response = {'profile': serializer.data}
+    json_response = {'profile': profile_serializer.data, 'posts': post_serializer.data}
 
     is_followed = profile.user in request.user.profile.following.all()
     json_response["profile"]["is_following"] = is_followed

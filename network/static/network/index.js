@@ -1,3 +1,4 @@
+//variables for posts infinite scroll
 const number_of_posts = 2;
 let offset = 0
 const infinite_scroll = function () {
