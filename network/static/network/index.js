@@ -1,5 +1,6 @@
 let page_number = 1;
-//variables for posts infinite scroll
+//TODO: buttons for pagination
+
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -8,7 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loadProfile(loggedin_user);
     });
     document.querySelector('#following-button').addEventListener('click', () => loadPage('following'));
-
+    //document.querySelector("#previous").addEventListener('click', () => page_number--);
+    //document.querySelector("#next").addEventListener('click', () => page_number++);
 
     loadPage('allposts');
 })
@@ -21,37 +23,40 @@ function loadPage(page) {
     document.querySelector('#newpost-form').style.display = 'none';
     document.querySelector('#profile').style.display = 'none';
 
+    document.querySelector("#previous").style.display = "none";
+    document.querySelector("#next").style.display = "block";
+
     page_number = 1;
     
     if(page === "allposts") {
         document.querySelector('#newpost-form').style.display = 'block';
         loadPosts("/posts");
+        document.querySelector("#previous").addEventListener('click', () => {
+            page_number--;
+            loadPosts("/posts");
+        });
+        document.querySelector("#next").addEventListener('click', () => {
+            page_number++;
+            loadPosts("/posts");
+        });
 
     } else if(page === "profile") {
         document.querySelector('#profile').style.display = 'grid';
-
+        
     } else if(page === "following") {
         loadPosts("/following");
+        document.querySelector("#previous").addEventListener('click', () => {
+            page_number--;
+            loadPosts("/following");
+        });
+        document.querySelector("#next").addEventListener('click', () => {
+            page_number++;
+            loadPosts("/following");
+        });
     }
 }
 
-function loadAllPosts() {
-
-    //load posts from /posts/ api
-    fetch(`/posts?${page_number}`)
-    .then(response => response.json())
-    .then(data => {
-        page_number ++;
-        data.posts.forEach(post => {
-            post_element = add_post(post);
-            document.querySelector('#posts').append(post_element);
-        })
-    })
-}
-
-//function
-
-function add_post(contents) {
+function createPost(contents) {
      //create post elements
     let post = document.createElement('li');
     let poster = document.createElement('h4');
@@ -100,6 +105,15 @@ function add_post(contents) {
 }
 
 function loadProfile(username) {
+    document.querySelector("#previous").addEventListener('click', () => {
+        page_number--;
+        loadPosts("/posts/${username}", page_number);
+        
+    });
+    document.querySelector("#next").addEventListener('click', () => {
+        page_number++;
+        loadPosts("/posts", page_number);
+    });
     fetch(`/profile?username=${username}&page=${page_number}`)
     .then(response => response.json())
     .then(data => {
@@ -161,16 +175,28 @@ function loadProfile(username) {
     })
 
     loadPosts(`/posts/${username}`);
+    
 }
 
 function loadPosts(api_route) {
     fetch(`${api_route}?page=${page_number}`)
     .then(response => response.json())
     .then(data => {
-        page_number ++;
+        if(!data.has_next){
+            document.querySelector("#next").style.display = "none";
+        } else {
+            document.querySelector("#next").style.display = "block";
+        }
+        if(!data.has_previous){
+            document.querySelector("#previous").style.display = "none";
+        } else {
+            document.querySelector("#previous").style.display = "block";
+        }
+        document.querySelector('#posts').replaceChildren();
         data.posts.forEach(post => {
-            post_element = add_post(post);
-            document.querySelector('#posts').append(post_element);
+            document.querySelector('#posts').append(createPost(post));
+            window.scrollTo(0, 0);
         })
     })
+    
 }

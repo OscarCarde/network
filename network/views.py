@@ -64,7 +64,7 @@ def get_allposts(request):
         post_instance = Post.objects.get(id=post["id"])
         post["liked"] = request.user in post_instance.likes.all()
     #return JSONResponse
-    return JsonResponse({"posts": serializer.data})
+    return JsonResponse({"posts": serializer.data, "has_next": page.has_next(), "has_previous": page.has_previous()})
 
 def get_followed_posts(request):
     page_number = int(request.GET.get("page") or 1)
@@ -77,7 +77,7 @@ def get_followed_posts(request):
         post_instance = Post.objects.get(id=post["id"])
         post["liked"] = request.user in post_instance.likes.all()
         #return JSONResponse
-    return JsonResponse({"posts": serializer.data})
+    return JsonResponse({"posts": serializer.data, "has_next": page.has_next(), "has_previous": page.has_previous()})
 
 def get_profile_posts(request, user):
     page_number = int(request.GET.get("page") or 1)
@@ -85,7 +85,7 @@ def get_profile_posts(request, user):
     pages = Paginator(posts, 10)
     page = pages.page(page_number)
     post_serializer = PostSerializer(page.object_list, many=True)
-    return JsonResponse({'posts': post_serializer.data})
+    return JsonResponse({'posts': post_serializer.data, "has_next": page.has_next(), "has_previous": page.has_previous()})
 
     
 def profile(request):
