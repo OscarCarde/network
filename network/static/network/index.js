@@ -125,19 +125,24 @@ function createPost(contents) {
 
         submit = document.createElement('input');
         submit.type = "submit";
-        submit.name = "edit";
 
         textarea = document.createElement('textarea');
+        textarea.name = "edit";
         textarea.innerHTML = text.innerHTML;
 
         edit_form.append(textarea, submit);
-        edit_form.onsubmit = () => {
-            // how to pass submitted form data to editPost()
-            let new_content = textarea.innerHTML;
+        edit_form.onsubmit = (event) => {
+            event.preventDefault(); // Prevent form submission
+        
+            let form_data = new FormData(edit_form);
+            let new_content = form_data.get("edit"); // Assuming your textarea has the name "edit"
+        
             editPost(contents, new_content);
             text.innerHTML = new_content;
-        };
 
+            edit_form.replaceWith(text);
+        };
+        
         text.replaceWith(edit_form);
 
         //remove the form if click outside the post
@@ -253,8 +258,6 @@ function loadPosts(api_route) {
 }
 
 function editPost(post, new_content) {
-    //TODO
-    console.log(new_content + " loaded");
     fetch(`/edit/${post.id}`, {
         method: 'POST',
         headers: {

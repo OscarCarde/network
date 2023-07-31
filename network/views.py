@@ -142,20 +142,16 @@ def edit_post(request, id):
 
     #process the json data
     raw_content = request.body
-    print(raw_content)
     loaded_content = json.loads(raw_content)
     content = loaded_content.get("new_content")
-    print(content)
-
 
     post = Post.objects.get(id=id)
-
-    if post.poster == request.user:
+    if post.by == request.user:
         post.content = content
         post.save()
         message = "post edited successfully"
     else:
-        message = "post doesn't belong to logged-in user    "
+        message = "post doesn't belong to logged-in user"
 
     return JsonResponse({"edited": message})
 #_________________________________________________________
