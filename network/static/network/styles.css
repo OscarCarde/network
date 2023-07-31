@@ -58,6 +58,10 @@
         margin: 10px;
     }
 
+    #follow {
+        display: none;
+    }
+
 .clickable {
     cursor: pointer;
 }

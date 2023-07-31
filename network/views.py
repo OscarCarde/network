@@ -1,9 +1,13 @@
 from typing import Any, Dict
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, JsonResponse
+import json
 from django.shortcuts import render
 from django.urls import reverse
+
 from django.views.generic import TemplateView
 from .forms import *
 from .models import Post
@@ -40,6 +44,7 @@ class Index(TemplateView):
    
 #____________APIs_________________________
 #TODO: refactor apis 
+
 def get_allposts(request):
     ''' posts API,
     get posts from database and load them in json
@@ -66,6 +71,7 @@ def get_allposts(request):
     #return JSONResponse
     return JsonResponse({"posts": serializer.data, "has_next": page.has_next(), "has_previous": page.has_previous()})
 
+@login_required
 def get_followed_posts(request):
     page_number = int(request.GET.get("page") or 1)
     posts = request.user.profile.followed_posts
@@ -81,7 +87,7 @@ def get_followed_posts(request):
 
 def get_profile_posts(request, user):
     page_number = int(request.GET.get("page") or 1)
-    posts = Post.objects.filter(by=User.objects.get(username=user))
+    posts = Post.objects.filter(by=User.objects.get(username=user)).order_by("-timestamp")
     pages = Paginator(posts, 10)
     page = pages.page(page_number)
     post_serializer = PostSerializer(page.object_list, many=True)
@@ -103,6 +109,7 @@ def profile(request):
 
     return JsonResponse(json_response)
 
+@login_required
 def like(request, id):
     post = Post.objects.get(id=id)
     if request.user not in post.likes.all():
@@ -113,7 +120,7 @@ def like(request, id):
     return JsonResponse(dict())
 
 
-
+@login_required
 def follow(request, username):
     profile = Profile.objects.get(user=request.user)
     user_to_follow = User.objects.get(username=username)
@@ -127,6 +134,30 @@ def follow(request, username):
             return JsonResponse({"followed": True})
     else:
         return JsonResponse({"followed": None})
+    
+@login_required
+def edit_post(request, id):
+
+    message = "couldn't edit the post"
+
+    #process the json data
+    raw_content = request.body
+    print(raw_content)
+    loaded_content = json.loads(raw_content)
+    content = loaded_content.get("new_content")
+    print(content)
+
+
+    post = Post.objects.get(id=id)
+
+    if post.poster == request.user:
+        post.content = content
+        post.save()
+        message = "post edited successfully"
+    else:
+        message = "post doesn't belong to logged-in user    "
+
+    return JsonResponse({"edited": message})
 #_________________________________________________________
 
 def login_view(request):

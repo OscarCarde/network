@@ -1,35 +1,45 @@
-let page_number = 1;
-//TODO: buttons for pagination
+const csrftoken = document.querySelector("[name=csrfmiddlewaretoken]").value;
 
+
+let page_number = 1;
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    document.querySelector('#profile-button').addEventListener('click', () => {
-        loadPage('profile');
-        loadProfile(loggedin_user);
-    });
-    document.querySelector('#following-button').addEventListener('click', () => loadPage('following'));
-    //document.querySelector("#previous").addEventListener('click', () => page_number--);
-    //document.querySelector("#next").addEventListener('click', () => page_number++);
+    const profile_button = document.querySelector('#profile-button');
+    if(profile_button) {
+        profile_button.addEventListener('click', () => {
+            loadPage('profile');
+            loadProfile(loggedin_user);
+        });
+    }
+
+    const following_button = document.querySelector('#following-button');
+    if(following_button){
+        following_button.addEventListener('click', () => loadPage('following'));
+    }
 
     loadPage('allposts');
 })
 
-//TODO: loadPage
+
 function loadPage(page) {
 
     //hide all the view divs except the element for the corresponding parameter
     document.querySelector('#posts').replaceChildren();
-    document.querySelector('#newpost-form').style.display = 'none';
+    const new_form = document.querySelector('#newpost-form');
+    if(new_form){
+        new_form.style.display = 'none';
+    }
     document.querySelector('#profile').style.display = 'none';
-
     document.querySelector("#previous").style.display = "none";
     document.querySelector("#next").style.display = "block";
 
     page_number = 1;
     
     if(page === "allposts") {
-        document.querySelector('#newpost-form').style.display = 'block';
+        if(new_form){
+            new_form.style.display = 'block';
+        } 
         loadPosts("/posts");
         document.querySelector("#previous").addEventListener('click', () => {
             page_number--;
@@ -59,12 +69,13 @@ function loadPage(page) {
 function createPost(contents) {
      //create post elements
     let post = document.createElement('li');
-    let poster = document.createElement('h4');
+    let poster = document.createElement('h5');
     let text = document.createElement('p');
     let media = document.createElement('img');
     let timestamp = document.createElement('p');
     let likes = document.createElement('p');
     let like = document.createElement('button');
+    let edit = document.createElement('button');
 
     //populate post
     poster.innerHTML = contents.by;
@@ -81,18 +92,21 @@ function createPost(contents) {
     like.innerHTML = "Like";
 
     like.onclick = () => {
-        if(!contents.liked) {
-            likes.innerHTML = "Liked " + (contents.likes + 1);
-        } else {
-            likes.innerHTML = "Liked " + (contents.likes -1);
+        if(loggedin_user) {
+            if(!contents.liked) {
+                likes.innerHTML = "Liked " + (contents.likes + 1);
+            } else {
+                likes.innerHTML = "Liked " + (contents.likes -1);
+            }
+            fetch(`like/${contents.id}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
         }
-        fetch(`like/${contents.id}`)
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-        })
-
     }
+
+    edit.innerHTML = "Edit";
 
     post.className = 'post list-group-item';
     post.append(poster);
@@ -100,6 +114,43 @@ function createPost(contents) {
         post.append(media);
     }
     post.append(text, timestamp, likes, like);
+
+    if(loggedin_user === poster.innerHTML) {
+        post.append(edit);
+    }
+
+    //display the edit form when edit is clicked
+    edit.addEventListener('click', () => {
+        edit_form = document.createElement('form');
+
+        submit = document.createElement('input');
+        submit.type = "submit";
+        submit.name = "edit";
+
+        textarea = document.createElement('textarea');
+        textarea.innerHTML = text.innerHTML;
+
+        edit_form.append(textarea, submit);
+        edit_form.onsubmit = () => {
+            // how to pass submitted form data to editPost()
+            let new_content = textarea.innerHTML;
+            editPost(contents, new_content);
+            text.innerHTML = new_content;
+        };
+
+        text.replaceWith(edit_form);
+
+        //remove the form if click outside the post
+        const replaceForm = function(event) {
+            if (!post.contains(event.target) && event.target !== submit) {
+                edit_form.replaceWith(text);
+                document.removeEventListener('click', replaceForm);
+              }
+            
+        }
+        document.addEventListener('click', replaceForm);
+    });
+
 
     return post;
 }
@@ -139,11 +190,11 @@ function loadProfile(username) {
         }
 
         let following = document.createElement('p');
-        following.innerHTML = "Following: " + data.profile.number_followed;
+        following.innerHTML = "Following " + data.profile.number_followed;
         following.id = "following";
 
         let followers = document.createElement('p');
-        followers.innerHTML = "Followers: " + data.profile.number_of_followers;
+        followers.innerHTML = "Followers " + data.profile.number_of_followers;
         followers.id = "followers";
 
         let about = document.createElement('p');
@@ -199,4 +250,23 @@ function loadPosts(api_route) {
         })
     })
     
+}
+
+function editPost(post, new_content) {
+    //TODO
+    console.log(new_content + " loaded");
+    fetch(`/edit/${post.id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            "new_content": new_content
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.edited);
+    })
 }

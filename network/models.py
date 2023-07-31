@@ -49,7 +49,8 @@ class Post(models.Model):
     
     @property
     def posted_since(self):
-        return timesince(self.timestamp, timezone.now()) + " ago"
+        #return timesince(self.timestamp, timezone.now()) + " ago"
+        return f"On {self.timestamp.strftime('%d-%m-%Y')} at {self.timestamp.strftime('%H:%M')}"
 
     def __str__(self):
         return f"{self.by.username} said: {self.content[:9]}... on {self.timestamp.strftime('%d-%m-%Y')} at {self.timestamp.strftime('%H:%M')}"
