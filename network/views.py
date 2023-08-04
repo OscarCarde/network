@@ -94,7 +94,7 @@ def get_profile_posts(request, user):
     return JsonResponse({'posts': post_serializer.data, "has_next": page.has_next(), "has_previous": page.has_previous()})
 
     
-def profile(request):
+def get_profile(request):
     ''' profile api,
     get information and posts about a user
     '''
