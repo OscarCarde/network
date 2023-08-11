@@ -1,3 +1,8 @@
+
+import os
+import pathlib
+import unittest
+
 from django.test import Client, TestCase
 from .models import *
 from datetime import datetime, timedelta
@@ -5,46 +10,49 @@ from .serializers import *
 import json
 from collections import OrderedDict
 
+from selenium import webdriver
+
+# Finds the Uniform Resourse Identifier of a file
+def file_uri(filename):
+    return pathlib.Path(os.path.abspath(filename)).as_uri()
+
+# Sets up web driver using Google chrome
+driver = webdriver.Chrome()
+
 # Create your tests here.
 
 class ProfileTestCase(TestCase):
 
     def setUp(self):
-        user1 = User.objects.create_user(username="Alex", email="alex@gmail.com", password="1234")
-        user2 = User.objects.create_user(username="Boris", email="boris@gmail.com", password="1234")
-        user3 = User.objects.create_user(username="Callum", email="callum@gmail.com", password="1234")
+        self.user1 = User.objects.create_user(username="Alex", email="alex@gmail.com", password="1234")
+        self.user2 = User.objects.create_user(username="Boris", email="boris@gmail.com", password="1234")
+        self.user3 = User.objects.create_user(username="Callum", email="callum@gmail.com", password="1234")
 
-        Profile.objects.create(user=user1, about="Hi I'm Alex and I love Aerobics")
-        Profile.objects.create(user=user2, about="Be warned, I am Boris")
-        Profile.objects.create(user=user3, about="Certain people really like cheese")
+        self.alex = Profile.objects.create(user=self.user1, about="Hi I'm Alex and I love Aerobics")
+        self.boris = Profile.objects.create(user=self.user2, about="Be warned, I am Boris")
+        self.callum = Profile.objects.create(user=self.user3, about="Certain people really like cheese")
 
-        Post.objects.create(id=1111, content="I'm eating maccaroni", by=user3)
-        Post.objects.create(id=2222, content="Today is Tuesday", by=user1, timestamp=datetime(year=2023, month=8, day=1)+ timedelta(hours=1))
-        Post.objects.create(id=3333, content="Today is Monday", by=user1, timestamp=datetime(year=2023, month=7, day=31, ))
-        Post.objects.create(id=4444, content="Today is Monday", by=user1, timestamp=datetime(year=2022, month=7, day=1))
+        self.post1 = Post.objects.create(id=1111, content="I'm eating maccaroni", by=self.user3)
+        self.post2 = Post.objects.create(id=2222, content="Today is Tuesday", by=self.user1, timestamp=datetime(year=2023, month=8, day=1)+ timedelta(hours=1))
+        self.post3 = Post.objects.create(id=3333, content="Today is Monday", by=self.user1, timestamp=datetime(year=2023, month=7, day=31, ))
+        self.post4 = Post.objects.create(id=4444, content="Today is Monday", by=self.user1, timestamp=datetime(year=2022, month=7, day=1))
         
 
     def test_number_of_followers(self):
-        alex_pr = User.objects.get(username="Alex").profile
-        boris = User.objects.get(username="Boris")
-        boris_pr = boris.profile
-        alex_pr.following.add(boris)
-        self.assertEquals(boris_pr.number_of_followers, 1, "something went wrong in the number_of_followers custom property in the Profile model")
-        self.assertEqual(alex_pr.number_of_followers, 0, "something went wrong in the number_of_followers custom property in the Profile model")
-        alex_pr.following.remove(boris)
+        self.alex.following.add(self.user2)
+        self.assertEquals(self.boris.number_of_followers, 1, "something went wrong in the number_of_followers custom property in the Profile model")
+        self.assertEqual(self.alex.number_of_followers, 0, "something went wrong in the number_of_followers custom property in the Profile model")
+        self.alex.following.remove(self.user2)
 
     def test_number_followed(self):
-        alex = User.objects.get(username="Alex")
-        boris = User.objects.get(username="Boris")
-        callum = User.objects.get(username="Callum")
 
-        alex.profile.following.add(boris)
-        alex.profile.following.add(callum)
+        self.alex.following.add(self.user2)
+        self.alex.following.add(self.user3)
 
-        self.assertEqual(alex.profile.number_followed, 2, "something went wrong in the numberfollowed custom property in the Profile model")
-        self.assertEqual(boris.profile.number_followed, 0, "something went wrong in the numberfollowed custom property in the Profile model")
-        alex.profile.following.remove(boris)
-        alex.profile.following.remove(callum)
+        self.assertEqual(self.alex.number_followed, 2, "something went wrong in the numberfollowed custom property in the Profile model")
+        self.assertEqual(self.boris.number_followed, 0, "something went wrong in the numberfollowed custom property in the Profile model")
+        self.alex.following.remove(self.user2)
+        self.alex.following.remove(self.user3)
 
     '''def test_ordered_posts(self):
         alex = User.objects.get(username="Alex")
@@ -74,18 +82,18 @@ class ApiTestCase(TestCase):
 
     def setUp(self):
 
-        user1 = User.objects.create_user(username="Alex", email="alex@gmail.com", password="1234")
-        user2 = User.objects.create_user(username="Boris", email="boris@gmail.com", password="1234")
-        user3 = User.objects.create_user(username="Callum", email="callum@gmail.com", password="1234")
+        self.user1 = User.objects.create_user(username="Alex", email="alex@gmail.com", password="1234")
+        self.user2 = User.objects.create_user(username="Boris", email="boris@gmail.com", password="1234")
+        self.user3 = User.objects.create_user(username="Callum", email="callum@gmail.com", password="1234")
 
-        Profile.objects.create(user=user1, about="Hi I'm Alex and I love Aerobics")
-        Profile.objects.create(user=user2, about="Be warned, I am Boris")
-        Profile.objects.create(user=user3, about="Certain people really like cheese")
+        self.alex = Profile.objects.create(user=self.user1, about="Hi I'm Alex and I love Aerobics")
+        self.boris = Profile.objects.create(user=self.user2, about="Be warned, I am Boris")
+        self.callum = Profile.objects.create(user=self.user3, about="Certain people really like cheese")
 
-        Post.objects.create(id=1111, content="I'm eating maccaroni", by=user3)
-        Post.objects.create(id=2222, content="Today is Tuesday", by=user1, timestamp=datetime(year=2023, month=8, day=1)+ timedelta(hours=1))
-        Post.objects.create(id=3333, content="Today is Monday", by=user1, timestamp=datetime(year=2023, month=7, day=31, ))
-        Post.objects.create(id=4444, content="Today is Monday", by=user1, timestamp=datetime(year=2022, month=7, day=1))
+        self.post1 = Post.objects.create(id=1111, content="I'm eating maccaroni", by=self.user3)
+        self.post2 = Post.objects.create(id=2222, content="Today is Tuesday", by=self.user1, timestamp=datetime(year=2023, month=8, day=1)+ timedelta(hours=1))
+        self.post3 = Post.objects.create(id=3333, content="Today is Monday", by=self.user1, timestamp=datetime(year=2023, month=7, day=31, ))
+        self.post4 = Post.objects.create(id=4444, content="Today is Monday", by=self.user1, timestamp=datetime(year=2022, month=7, day=1))
 
         
     def test_get_allposts(self):
@@ -130,7 +138,7 @@ class ApiTestCase(TestCase):
                 posts.append(OrderedDict(post.items()))
 
             #retreive followed posts
-            followed_posts = Profile.objects.get(user=User.objects.get(username="Alex")).followed_posts
+            followed_posts = self.alex.followed_posts
             followed_posts_serialized = PostSerializer(followed_posts, many=True)
             followed_posts_data  = followed_posts_serialized.data
 
@@ -153,3 +161,24 @@ class ApiTestCase(TestCase):
         c = Client()
         c.post("/login/", {"username": "Alex", "password": "1234"})
         self.assertEqual(0, 1, "something went wrong when updating post")
+
+class WebPagesTestCase(TestCase):
+    
+    def setUp(self):
+        self.user1 = User.objects.create_user(username="Alex", email="alex@gmail.com", password="1234")
+        self.user2 = User.objects.create_user(username="Boris", email="boris@gmail.com", password="1234")
+        self.user3 = User.objects.create_user(username="Callum", email="callum@gmail.com", password="1234")
+
+        self.alex = Profile.objects.create(user=self.user1, about="Hi I'm Alex and I love Aerobics")
+        self.boris = Profile.objects.create(user=self.user2, about="Be warned, I am Boris")
+        self.callum = Profile.objects.create(user=self.user3, about="Certain people really like cheese")
+
+        self.post1 = Post.objects.create(id=1111, content="I'm eating maccaroni", by=self.user3)
+        self.post2 = Post.objects.create(id=2222, content="Today is Tuesday", by=self.user1, timestamp=datetime(year=2023, month=8, day=1)+ timedelta(hours=1))
+        self.post3 = Post.objects.create(id=3333, content="Today is Monday", by=self.user1, timestamp=datetime(year=2023, month=7, day=31, ))
+        self.post4 = Post.objects.create(id=4444, content="Today is Monday", by=self.user1, timestamp=datetime(year=2022, month=7, day=1))
+        
+    def test_landing(self):
+        uri = file_uri("templates/network/index.html")
+        driver.get(uri)
+        self.assertEquals("Social Network", driver.title, "oops")
