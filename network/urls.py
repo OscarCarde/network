@@ -8,6 +8,7 @@ urlpatterns = [
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
+    #######__apis__########
     path("posts", views.get_allposts, name="posts"),
     path("posts/<str:user>", views.get_profile_posts, name="profile_posts"),
     path("following", views.get_followed_posts, name="following"),

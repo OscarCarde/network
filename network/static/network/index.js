@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const following_button = document.querySelector('#following-button');
-    if(following_button){
+    if(following_button != null){
         following_button.addEventListener('click', () => loadPage('following'));
     }
 
@@ -37,7 +37,7 @@ function loadPage(page) {
     page_number = 1;
     
     if(page === "allposts") {
-        if(new_form){
+        if(new_form != null){
             new_form.style.display = 'block';
         } 
         loadPosts("/posts");
@@ -91,17 +91,12 @@ function createPost(contents) {
     likes.innerHTML = "Liked " + contents.likes
     like.innerHTML = "Like";
 
-    like.onclick = () => {
-        if(loggedin_user) {
-            if(!contents.liked) {
-                likes.innerHTML = "Liked " + (contents.likes + 1);
-            } else {
-                likes.innerHTML = "Liked " + (contents.likes -1);
-            }
-            fetch(`like/${contents.id}`)
+    like.onclick = async () => {
+        if(loggedin_user != "") {
+            await fetch(`like/${contents.id}`)
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                likes.innerHTML = "Liked " + data.likes;
             })
         }
     }
@@ -110,7 +105,7 @@ function createPost(contents) {
 
     post.className = 'post list-group-item';
     post.append(poster);
-    if(contents.media) {
+    if(contents.media != null) {
         post.append(media);
     }
     post.append(text, timestamp, likes, like);
@@ -160,7 +155,7 @@ function createPost(contents) {
     return post;
 }
 
-function loadProfile(username) {
+async function loadProfile(username) {
     document.querySelector("#previous").addEventListener('click', () => {
         page_number--;
         loadPosts("/posts/${username}", page_number);
@@ -170,7 +165,7 @@ function loadProfile(username) {
         page_number++;
         loadPosts("/posts", page_number);
     });
-    fetch(`/profile?username=${username}&page=${page_number}`)
+    await fetch(`/profile?username=${username}&page=${page_number}`)
     .then(response => response.json())
     .then(data => {
         let media = document.createElement('img');
@@ -210,28 +205,27 @@ function loadProfile(username) {
         document.querySelector("#profile-info").replaceChildren(user_name, following, followers, about);
     })
 
-    let follow = document.querySelector("#follow");
-    follow.addEventListener('click', element => {
-
-        if (follow.innerHTML === "Follow") {
-            follow.innerHTML = "Unfollow";
-        } else if (follow.innerHTML === "Unfollow") {
-            follow.innerHTML = "Follow";
-        }
-        
-        fetch(`follow/${username}`)
-        .then(response => response.json())
-        .then(status => {
-            if(status.followed) {
-                element.innerHTML = "Unfollow";
-            } else if (!status.followed) {
-                element.innerHTML = "Follow"
-            }
-        })
-    })
+    let followBtn = document.querySelector("#follow");
+    followBtn.setAttribute("data-username", username);
+    followBtn.addEventListener('click', () => {
+        follow(followBtn);
+    });
 
     loadPosts(`/posts/${username}`);
     
+}
+
+async function follow(element) {
+    
+    await fetch(`follow/${element.dataset.username}`)
+    .then(response => response.json())
+    .then(status => {
+        if(status.followed) {
+            element.innerHTML = "Unfollow";
+        } else if (!status.followed) {
+            element.innerHTML = "Follow";
+        }
+    })
 }
 
 function loadPosts(api_route) {

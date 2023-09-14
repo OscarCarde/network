@@ -117,7 +117,7 @@ def like(request, id):
     else:
         post.likes.remove(request.user)
 
-    return JsonResponse(dict())
+    return JsonResponse({"likes": str(post.likes.count())})
 
 
 @login_required
