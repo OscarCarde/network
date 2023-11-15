@@ -1,3 +1,6 @@
+Watch on youtube:\
+[![Watch the video](https://img.youtube.com/vi/QOmI5xZVo0c/hqdefault.jpg)](https://www.youtube.com/embed/QOmI5xZVo0c)
+
 ## Specification
 
 Using Python, JavaScript, HTML, and CSS, complete the implementation of a social network that allows users to make posts, follow other users, and “like” posts. You must fulfill the following requirements:
